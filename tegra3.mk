@@ -23,8 +23,9 @@ PRODUCT_PACKAGES += \
 # Filesystem
 PODUCT_PACKAGES += \
     make_ext4fs \
-    setup_fs 
-
+    setup_fs \
+    sdcard
+  
 # USB
 PODUCT_PACKAGES += \
     com.android.future.usb.accessory 
