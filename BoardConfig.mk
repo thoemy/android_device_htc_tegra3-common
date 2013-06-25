@@ -57,12 +57,11 @@ ENABLE_WEBGL := true
 # EGL settings
 USE_OPENGL_RENDERER := true
 BOARD_EGL_NEEDS_LEGACY_FB := true
-BOARD_EGL_CFG := device/htc/enrc2b/configs/egl.cfg
 
 # Graphics - Skia
 BOARD_USE_SKIA_LCDTEXT := true
 
-# Wifi related defines
+# Wifi related defines   #######IS THIS SHARED#####
 BOARD_WPA_SUPPLICANT_DRIVER := NL80211
 WPA_SUPPLICANT_VERSION      := VER_0_8_X
 BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_bcmdhd
@@ -78,12 +77,6 @@ WIFI_DRIVER_FW_PATH_P2P     := "/system/etc/firmware/fw_bcm4334_p2p.bin"
 # BT
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR ?= device/htc/enrc2b/bluetooth
-BOARD_BLUEDROID_VENDOR_CONF := device/htc/enrc2b/bluetooth/vnd_enrc2b.txt
-
-# HTC ril compatability
-BOARD_USE_NEW_LIBRIL_HTC := true
-TARGET_PROVIDES_LIBRIL := device/htc/enrc2b/proprietary/lib/libhtc-ril.so
 
 # USB
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/class/android_usb/f_mass_storage/lun0/file"
@@ -95,7 +88,6 @@ BOARD_HAS_SDCARD_INTERNAL := true
 COMMON_GLOBAL_CFLAGS += -DHTCLOG
 
 # Kernel / Ramdisk
-#TARGET_PREBUILT_KERNEL := device/htc/enrc2b/prebuilt/kernel
 TARGET_PROVIDES_INIT_TARGET_RC := true
 TARGET_USERIMAGES_USE_EXT4 := true
 BOARD_BOOTIMAGE_PARTITION_SIZE := 8388608
@@ -108,14 +100,4 @@ BOARD_FLASH_BLOCK_SIZE := 4096
 BOARD_KERNEL_CMDLINE :=
 BOARD_KERNEL_BASE := 0x10000000
 BOARD_KERNEL_PAGESIZE := 2048
-
-TARGET_USE_CUSTOM_LUN_FILE_PATH := /sys/class/android_usb/android0/f_mass_storage/lun%d/file
-
-# Try to build the kernel
-TARGET_KERNEL_SOURCE := kernel/htc/enrc2b
-TARGET_KERNEL_CONFIG := cyanogenmod_enrc2b_defconfig
-
-# dont build docs
-DISABLE_DROIDDOC := true
-
 
