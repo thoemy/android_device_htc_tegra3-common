@@ -77,3 +77,7 @@ PRODUCT_PACKAGES += \
 # video
 PRODUCT_PACKAGES += \
 	libstagefrighthw
+	
+# iw
+PRODUCT_PACKAGES += \
+    iw 
