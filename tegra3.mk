@@ -12,24 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-PRODUCT_AAPT_CONFIG := normal hdpi xhdpi
-PRODUCT_AAPT_PREF_CONFIG := xhdpi
-
-# Set default USB interface
-PRODUCT_PROPERTY_OVERRIDES += \
-    persist.sys.usb.config=mass_storage,adb
-
-# Don't store dalvik on /cache, it gets annoying when /cache is wiped
-# by us to enable booting into recovery after flashing boot.img
-PRODUCT_PROPERTY_OVERRIDES += \
-    dalvik.vm.dexopt-data-only=1
-
-# X\X+ are similar to Galaxy Nexus in terms of RAM
-include frameworks/native/build/phone-xhdpi-1024-dalvik-heap.mk
-
-# we have enough storage space to hold precise GC data
-PRODUCT_TAGS += dalvik.gc.type-precise
-
 # These are the hardware-specific features
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
@@ -59,24 +41,22 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     camera.tegra
 
-# pollyd (respect & thanks to Adrian Ulrich <adrian@blinkenlights.ch> )
-PRODUCT_PACKAGES += \
-    pollyd \
-    Polly
-
 PRODUCT_PACKAGES += \
     EndeavoruParts
 
-####This could get tricky ATT + INTER X+'s use these####
-
 PRODUCT_PACKAGES += \
-	hostapd_cli \
+    hostapd_cli \
         calibrator
 
 # video
 PRODUCT_PACKAGES += \
-	libstagefrighthw
-	
+    libstagefrighthw
+    
 # iw
 PRODUCT_PACKAGES += \
     iw 
+
+# Configs
+
+PRODUCT_COPY_FILES += \
+device/htc/tegra3-common/configs/egl.cfg:system/lib/egl/egl.cfg
