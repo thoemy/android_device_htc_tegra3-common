@@ -41,6 +41,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     camera.tegra
 
+# Pollyd
+PRODUCT_PACKAGES += \
+    EndeavoruParts
+
 PRODUCT_PACKAGES += \
     EndeavoruParts
 
