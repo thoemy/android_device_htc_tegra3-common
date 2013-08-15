@@ -34,7 +34,6 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH) \
 	external/libnl-headers
 
-
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/../libnl-headers \
 	$(TARGET_PROJECT_INCLUDES) $(TARGET_C_INCLUDES)

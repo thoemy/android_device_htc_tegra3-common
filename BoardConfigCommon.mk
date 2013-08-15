@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 # Skip droiddoc build to save build time
 BOARD_SKIP_ANDROID_DOC_BUILD := true
 
@@ -71,5 +72,3 @@ BOARD_USE_NEW_LIBRIL_HTC := true
 
 # HTCLOG
 COMMON_GLOBAL_CFLAGS += -DHTCLOG
-
-

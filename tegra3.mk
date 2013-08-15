@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
 # These are the hardware-specific features
 PRODUCT_COPY_FILES += \
@@ -32,8 +33,7 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
     frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml
 
-
-# lights
+# Lights
 PRODUCT_PACKAGES += \
     lights.tegra
 
@@ -43,16 +43,16 @@ PRODUCT_PACKAGES += \
 
 # Pollyd
 PRODUCT_PACKAGES += \
-    EndeavoruParts
+    pollyd
 
 PRODUCT_PACKAGES += \
     EndeavoruParts
 
 PRODUCT_PACKAGES += \
     hostapd_cli \
-        calibrator
+    calibrator
 
-# video
+# Video
 PRODUCT_PACKAGES += \
     libstagefrighthw
     
@@ -61,6 +61,5 @@ PRODUCT_PACKAGES += \
     iw 
 
 # Configs
-
 PRODUCT_COPY_FILES += \
-device/htc/tegra3-common/configs/egl.cfg:system/lib/egl/egl.cfg
+    device/htc/tegra3-common/configs/egl.cfg:system/lib/egl/egl.cfg
