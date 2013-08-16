@@ -43,6 +43,7 @@ PRODUCT_PACKAGES += \
 
 # Pollyd
 PRODUCT_PACKAGES += \
+		Polly \
     pollyd
 
 PRODUCT_PACKAGES += \
