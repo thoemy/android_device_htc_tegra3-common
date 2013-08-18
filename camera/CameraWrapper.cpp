@@ -91,6 +91,7 @@ static int check_vendor_module()
 }
 
 const static char * scene_mode_values[] = {"auto,action,portrait,landscape,beach,fireworks,night,night-portrait,snow,sports,steadyphoto,sunset,theatre,barcode,candlelight,hdr,text,closeup,back-light,backlight_portrait,beauty-mode,flowers,white-board,background-blur","auto"};
+const static char * picture_size_values = "320x240,480x480,640x368,640x480,800x600,1024x768,1280x720,1456x1088,2592x1456,2048x1152,640x368,1280x752,1280x960,1440x1080,1600x1200,1836x1080,1920x1080,2048x1152,2048x1360,2048x1536,2592x1456,2592x1520,2592x1920,2592x1944,2592x1952,3264x1840,3264x2448";
 
 static char * camera_fixup_getparams(int id, const char * settings)
 {
@@ -99,6 +100,7 @@ static char * camera_fixup_getparams(int id, const char * settings)
 
     // fix params here
     params.set(android::CameraParameters::KEY_SUPPORTED_SCENE_MODES, scene_mode_values[id]);
+    params.set(android::CameraParameters::KEY_SUPPORTED_PICTURE_SIZES, picture_size_values);
 
     // with 4.2.2 binary the last 2 resolutions end up cut off and the string ends 2592x1952,3 
     // so if there's no x after the last comma then the string is borked so use the one we know works
