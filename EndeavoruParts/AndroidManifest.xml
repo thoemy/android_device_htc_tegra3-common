@@ -9,6 +9,10 @@
                 android:supportsRtl="true">
       <activity android:name=".DeviceSettings"
                 android:label="@string/app_name">
+        <intent-filter>
+          <action android:name="android.intent.action.MAIN" />
+          <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
       </activity>
       <receiver android:name=".Startup">
          <intent-filter android:priority="100">
