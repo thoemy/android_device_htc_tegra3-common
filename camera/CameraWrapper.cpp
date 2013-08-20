@@ -100,7 +100,6 @@ static char * camera_fixup_getparams(int id, const char * settings)
 
     // fix params here
     params.set(android::CameraParameters::KEY_SUPPORTED_SCENE_MODES, scene_mode_values[id]);
-    params.set(android::CameraParameters::KEY_SUPPORTED_PICTURE_SIZES, picture_size_values);
 
     // with 4.2.2 binary the last 2 resolutions end up cut off and the string ends 2592x1952,3 
     // so if there's no x after the last comma then the string is borked so use the one we know works
