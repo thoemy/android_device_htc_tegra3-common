@@ -90,6 +90,47 @@ static int check_vendor_module()
     return rv;
 }
 
+#define MAX_LENGTH 4000
+
+/**
+ * logcat messages are limited to a bit more than 4000 characters. This log
+ * function will split long setting strings intor smaller chunks.
+ **/
+static void log_parameters(const char * settings) {
+    size_t global_offset = 0;
+    char *new_string = (char *) malloc(MAX_LENGTH+1);
+    char *last_semicolon_ptr = NULL;
+    size_t last_semicolon_pos = 0;
+    const size_t settings_len = strlen(settings);
+
+    while(true) {
+        // Copy MAX_LENGTH characters of the settings string starting from offset
+        strncpy(new_string, settings + global_offset, MAX_LENGTH);
+        new_string[MAX_LENGTH] = '\0';
+
+        if(strlen(new_string) < settings_len) {
+            // Find the last comma in this string
+            last_semicolon_ptr = strrchr(new_string, ';');
+            if(last_semicolon_ptr == NULL)
+                last_semicolon_pos = MAX_LENGTH;
+            else
+                last_semicolon_pos = last_semicolon_ptr - new_string;
+
+            // Terminate the string at the last semicolon
+            new_string[last_semicolon_pos] = '\0';
+        }
+
+        __android_log_write(ANDROID_LOG_VERBOSE, LOG_TAG, new_string);
+
+        // Advance the offset after the last semicolon
+        global_offset += last_semicolon_pos + 1;
+        if(global_offset >= settings_len)
+            break;
+    }
+
+    free(new_string);
+}
+
 const static char * scene_mode_values[] = {"auto,action,portrait,landscape,beach,fireworks,night,night-portrait,snow,sports,steadyphoto,sunset,theatre,barcode,candlelight,hdr,text,closeup,back-light,backlight_portrait,beauty-mode,flowers,white-board,background-blur","auto"};
 const static char * picture_size_values = "320x240,480x480,640x368,640x480,800x600,1024x768,1280x720,1456x1088,2592x1456,2048x1152,640x368,1280x752,1280x960,1440x1080,1600x1200,1836x1080,1920x1080,2048x1152,2048x1360,2048x1536,2592x1456,2592x1520,2592x1920,2592x1944,2592x1952,3264x1840,3264x2448";
 
@@ -359,7 +400,7 @@ int camera_set_parameters(struct camera_device * device, const char *params)
     tmp = camera_fixup_setparams(CAMERA_ID(device), params);
 
 #ifdef LOG_PARAMETERS
-    __android_log_write(ANDROID_LOG_VERBOSE, LOG_TAG, tmp);
+    log_parameters(tmp);
 #endif
 
     int ret = VENDOR_CALL(device, set_parameters, tmp);
@@ -377,7 +418,7 @@ char* camera_get_parameters(struct camera_device * device)
     char* params = VENDOR_CALL(device, get_parameters);
 
 #ifdef LOG_PARAMETERS
-    __android_log_write(ANDROID_LOG_VERBOSE, LOG_TAG, params);
+    log_parameters(params);
 #endif
 
     char * tmp = camera_fixup_getparams(CAMERA_ID(device), params);
@@ -385,7 +426,7 @@ char* camera_get_parameters(struct camera_device * device)
     params = tmp;
 
 #ifdef LOG_PARAMETERS
-    __android_log_write(ANDROID_LOG_VERBOSE, LOG_TAG, params);
+    log_parameters(params);
 #endif
 
     return params;
