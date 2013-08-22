@@ -19,8 +19,6 @@ public class DeviceSettings extends PreferenceActivity  {
     public static final String KEY_S2WLENGTH = "s2w_length";
     public static final String KEY_BACKLIGHTDISABLE = "backlight_disable";
     public static final String KEY_BACKLIGHTNOTIFICATION = "backlight_notification";
-    public static final String KEY_SMARTDIMMERSWITCH = "smartdimmer_switch";
-    public static final String KEY_BACKLIGHTBRIGHTNESS = "backlight_brightness";
     public static final String KEY_SLOWBLINKBRIGHTNESSLIMIT = "slow_blink_brightness_limit";
     public static final String KEY_DOUBLETAB2WAKE_SWITCH = "s2w_double_tap_wake";
     public static final String KEY_DOUBLETAP2WAKE_DURATION = "s2w_double_tap_duration";
@@ -31,8 +29,6 @@ public class DeviceSettings extends PreferenceActivity  {
     private ListPreference mS2WLength;
     private TwoStatePreference mBacklightDisable;
     private TwoStatePreference mBacklightNotification;
-    private TwoStatePreference mSmartDimmerSwitch;
-    private ListPreference mBacklightBrightness;
     private TwoStatePreference mSlowBlinkBrightnessLimit;
     private TwoStatePreference mDoubleTap2WakeSwitch;
     private ListPreference mDoubleTap2WakeDuration;
@@ -77,16 +73,6 @@ public class DeviceSettings extends PreferenceActivity  {
         mBacklightNotification.setEnabled(BacklightNotificationSwitch.isSupported());
         mBacklightNotification.setChecked(BacklightNotificationSwitch.isEnabled(this));
         mBacklightNotification.setOnPreferenceChangeListener(new BacklightNotificationSwitch());
-
-        mSmartDimmerSwitch = (TwoStatePreference) findPreference(KEY_SMARTDIMMERSWITCH);
-        mSmartDimmerSwitch.setEnabled(SmartDimmerSwitch.isSupported());
-        mSmartDimmerSwitch.setChecked(SmartDimmerSwitch.isEnabled(this));
-        mSmartDimmerSwitch.setOnPreferenceChangeListener(new SmartDimmerSwitch());
-
-        mBacklightBrightness= (ListPreference) findPreference(KEY_BACKLIGHTBRIGHTNESS);
-        mBacklightBrightness.setEnabled(BacklightBrightness.isSupported());
-        mBacklightBrightness.setValue(squashBrightnessValue(BacklightBrightness.getValue(this)));
-        mBacklightBrightness.setOnPreferenceChangeListener(new BacklightBrightness());
 
         mSlowBlinkBrightnessLimit = (TwoStatePreference) findPreference(KEY_SLOWBLINKBRIGHTNESSLIMIT);
         mSlowBlinkBrightnessLimit.setEnabled(SlowBlinkBrightnessLimit.isSupported());

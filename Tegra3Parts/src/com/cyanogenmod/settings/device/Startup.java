@@ -13,8 +13,6 @@ public class Startup extends BroadcastReceiver {
         Sweep2WakeMinLength.restore(context);
         BacklightDisable.restore(context);
         BacklightNotificationSwitch.restore(context);
-        SmartDimmerSwitch.restore(context);
-        BacklightBrightness.restore(context);
         SlowBlinkBrightnessLimit.restore(context);
         DoubleTap2WakeSwitch.restore(context);
         DoubleTap2WakeDuration.restore(context);

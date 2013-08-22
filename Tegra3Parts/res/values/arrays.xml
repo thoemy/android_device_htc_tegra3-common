@@ -20,62 +20,6 @@
         <item>850</item>
     </string-array>
 
-    <string-array name="backlightbrightness_entries" translatable="false">
-        <item>10</item>
-        <item>20</item>
-        <item>30</item>
-        <item>40</item>
-        <item>50</item>
-        <item>60</item>
-        <item>70</item>
-        <item>80</item>
-        <item>90</item>
-        <item>100</item>
-        <item>110</item>
-        <item>120</item>
-        <item>130</item>
-        <item>140</item>
-        <item>150</item>
-        <item>160</item>
-        <item>170</item>
-        <item>180</item>
-        <item>190</item>
-        <item>200</item>
-        <item>210</item>
-        <item>220</item>
-        <item>230</item>
-        <item>240</item>
-        <item>255</item>
-    </string-array>
-    
-    <string-array name="backlightbrightness_entries_values" translatable="false">
-        <item>10</item>
-        <item>20</item>
-        <item>30</item>
-        <item>40</item>
-        <item>50</item>
-        <item>60</item>
-        <item>70</item>
-        <item>80</item>
-        <item>90</item>
-        <item>100</item>
-        <item>110</item>
-        <item>120</item>
-        <item>130</item>
-        <item>140</item>
-        <item>150</item>
-        <item>160</item>
-        <item>170</item>
-        <item>180</item>
-        <item>190</item>
-        <item>200</item>
-        <item>210</item>
-        <item>220</item>
-        <item>230</item>
-        <item>240</item>
-        <item>255</item>
-    </string-array>
- 
     <string-array name="s2w_double_tap_duration_entries" translatable="false">
         <item>150 ms</item>
         <item>200 ms</item>

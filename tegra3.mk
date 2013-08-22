@@ -33,6 +33,10 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
     frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml
 
+# Common ramdisk files
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/ramdisk/init.tegra3-common.rc:root/init.tegra3-common.rc
+
 # Lights
 PRODUCT_PACKAGES += \
     lights.tegra
@@ -43,7 +47,7 @@ PRODUCT_PACKAGES += \
 
 # Pollyd
 PRODUCT_PACKAGES += \
-		Polly \
+    Polly \
     pollyd
 
 PRODUCT_PACKAGES += \
@@ -56,7 +60,7 @@ PRODUCT_PACKAGES += \
 # Video
 PRODUCT_PACKAGES += \
     libstagefrighthw
-    
+
 # iw
 PRODUCT_PACKAGES += \
     iw 

@@ -10,3 +10,8 @@
 
 /sys/devices/tegradc\.0(/.*)?                u:object_r:sysfs_devices_tegradc:s0
 /sys/devices/tegradc\.1(/.*)?                u:object_r:sysfs_devices_tegradc:s0
+
+# Hardware tunable
+/sys/class/leds/button-backlight/button_brightness     u:object_r:sysfs_writable:s0
+/sys/class/timed_output/vibrator/dutycycle             u:object_r:sysfs_writable:s0
+/sys/devices/tegradc.0/smartdimmer/enable              u:object_r:sysfs_writable:s0

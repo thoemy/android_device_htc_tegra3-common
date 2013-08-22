@@ -90,3 +90,6 @@ BOARD_SEPOLICY_UNION := \
 
 # NvCamera extensions
 TARGET_SPECIFIC_HEADER_PATH := device/htc/tegra3-common/include
+
+# Hardware tunables
+BOARD_HARDWARE_CLASS := device/htc/tegra3-common/cmhw/
