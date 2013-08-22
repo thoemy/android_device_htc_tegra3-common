@@ -87,3 +87,6 @@ BOARD_SEPOLICY_UNION := \
     file.te \
     device.te \
     domain.te
+
+# NvCamera extensions
+TARGET_SPECIFIC_HEADER_PATH := device/htc/tegra3-common/include

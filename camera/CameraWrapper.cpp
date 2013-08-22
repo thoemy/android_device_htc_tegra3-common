@@ -42,6 +42,7 @@ static int camera_device_open(const hw_module_t* module, const char* name,
 static int camera_device_close(hw_device_t* device);
 static int camera_get_number_of_cameras(void);
 static int camera_get_camera_info(int camera_id, struct camera_info *info);
+static int camera_get_camera_info_extended(int camera_id, struct camera_info_extended *info);
 
 static struct hw_module_methods_t camera_module_methods = {
         open: camera_device_open
@@ -61,6 +62,7 @@ camera_module_t HAL_MODULE_INFO_SYM = {
     },
     get_number_of_cameras: camera_get_number_of_cameras,
     get_camera_info: camera_get_camera_info,
+    get_camera_info_extended: camera_get_camera_info_extended,
 };
 
 typedef struct wrapper_camera_device {
@@ -146,6 +148,17 @@ static char * camera_fixup_getparams(int id, const char * settings)
     // so if there's no x after the last comma then the string is borked so use the one we know works
     if(strchr(strrchr(params.get(android::CameraParameters::KEY_SUPPORTED_PICTURE_SIZES), ','), 'x') == NULL)
       params.set(android::CameraParameters::KEY_SUPPORTED_PICTURE_SIZES, picture_size_values);
+    
+#ifdef HARDWARE_HDR
+    // The camera apps expect the scene-mode to be hdr but the binary blob
+    // delivers capture-mode=hdr.
+    if(params.get("capture-mode")) {
+        const char* captureMode = params.get("capture-mode");
+        if(strcmp(captureMode, "hdr") == 0) {
+            params.set("scene-mode", "hdr");
+        }
+    }
+#endif
 
     android::String8 strParams = params.flatten();
     char *ret = strdup(strParams.string());
@@ -159,16 +172,80 @@ char * camera_fixup_setparams(int id, const char * settings)
     android::CameraParameters params;
     params.unflatten(android::String8(settings));
 
+    bool is_video = false;
+    if(params.get("recording-hint") && strcmp(params.get("recording-hint"), "true") == 0) {
+        is_video = true;
+    }
+
+    int cam_mode = -1;
+    if(params.get("cam-mode")) 
+        cam_mode = atoi(params.get("cam-mode"));
+
+    // cam-mode 0 is what the HTC camera app uses for taking pictures. It
+    // enables more advanced functionality. Gallery2 will set cam-mode to 0 for
+    // normal pictures if needsHTCCamMode is true in the overlay. It may break
+    // other camera apps if we set it unconditionally without the app knowing.
+    // But I'll leave the code here anyway.
+#if false
+    if(!is_video) {
+        params.set("cam-mode", "0");
+    }
+#endif
+
+    // Default to continuous-picture if nothing is set. It's what HTC uses.
+    if(!is_video && !params.get("focus-mode")) {
+        params.set("focus-mode", "continuous-picture");
+    }
+
+    // Don't mess around if cam mode is -1
+    if(cam_mode != -1) {
+        // Fix taking pictures with cam-mode=0 and cam-mode=1
+        params.set("nv-burst-picture-count", "1"); // set_custom_parameters only
+
+        // Set/reset parameters that are not set by the camera apps
+        params.set("nv-nsl-burst-picture-count", "0");
+        params.set("nv-nsl-num-buffers", "0");
+        params.set("nv-ev-bracket-capture", ""); // set_custom_parameters only
+
+        params.set("capture-mode", "normal");
+    }
+        
     // fix params here
     if(params.get("scene-mode")) {
         const char* sceneMode = params.get(android::CameraParameters::KEY_SCENE_MODE);
-        if(strcmp(sceneMode, "hdr") == 0)
+        if(strcmp(sceneMode, "auto") == 0) {
+#ifdef ENABLE_ZSL
+            // Parameters used by the HTC camera app for taking normal
+            // pictures. ZSL stands for Zero-Shutter-Lag and NSL for
+            // Negative-Shutter-Lag. It should enable us to take pictures
+            // faster but I couldn't find any improvements.
+            params.set("capture-mode", "zsl");
+            params.set("nv-nsl-num-buffers", "3");
+            params.set("nv-nsl-burst-picture-count", "1");
+            params.set("nv-burst-picture-count", "0"); // set_custom_parameters only
+#endif
+        } else if(strcmp(sceneMode, "hdr") == 0) {
+#ifndef ENABLE_HARDWARE_HDR
             params.set(android::CameraParameters::KEY_SCENE_MODE, "backlight-hdr");
-        else if(strcmp(sceneMode, "closeup") == 0)
+#else
+            // The hardware HDR feature is enabled by setting the capture-mode
+            // to hdr and using bracked-capture with different exposures. The
+            // parameters below are what the HTC camera app uses. It works but
+            // is very slow. It can take 5-8 seconds to take a picutre
+            params.set(android::CameraParameters::KEY_SCENE_MODE, "auto");
+            params.set("capture-mode", "hdr");
+            params.set("focus-mode", "continuous-picture");
+            params.set("nv-nsl-num-buffers", "0");
+            params.set("nv-nsl-burst-picture-count", "0");
+            params.set("nv-burst-picture-count", "1"); // set_custom_parameters only
+            params.set("nv-ev-bracket-capture", "-2.0,0,2.0"); // set_custom_parameters only
+#endif
+        } else if(strcmp(sceneMode, "closeup") == 0)
             params.set(android::CameraParameters::KEY_SCENE_MODE, "close-up");
         else if(strcmp(sceneMode, "back-light") == 0)
             params.set(android::CameraParameters::KEY_SCENE_MODE, "backlight");
     }
+
     if (params.get("flash-mode"))
     {
         const char* flashMode = params.get(android::CameraParameters::KEY_FLASH_MODE);
@@ -181,6 +258,7 @@ char * camera_fixup_setparams(int id, const char * settings)
               system("echo 0 > /sys/class/leds/flashlight/brightness");
         }
     }
+
 
     android::String8 strParams = params.flatten();
     char *ret = strdup(strParams.string());
@@ -407,6 +485,25 @@ int camera_set_parameters(struct camera_device * device, const char *params)
     return ret;
 }
 
+int camera_set_custom_parameters(struct camera_device * device, const char *params)
+{
+    ALOGV("%s", __FUNCTION__);
+    ALOGV("%s->%08X->%08X", __FUNCTION__, (uintptr_t)device, (uintptr_t)(((wrapper_camera_device_t*)device)->vendor));
+
+    if(!device)
+        return -EINVAL;
+
+    char *tmp = NULL;
+    tmp = camera_fixup_setparams(CAMERA_ID(device), params);
+
+#ifdef LOG_PARAMETERS
+    log_parameters(params);
+#endif
+
+    int ret = VENDOR_CALL(device, set_custom_parameters, tmp);
+    return ret;
+}
+
 char* camera_get_parameters(struct camera_device * device)
 {
     ALOGV("%s", __FUNCTION__);
@@ -416,6 +513,31 @@ char* camera_get_parameters(struct camera_device * device)
         return NULL;
 
     char* params = VENDOR_CALL(device, get_parameters);
+
+#ifdef LOG_PARAMETERS
+    log_parameters(params);
+#endif
+
+    char * tmp = camera_fixup_getparams(CAMERA_ID(device), params);
+    VENDOR_CALL(device, put_parameters, params);
+    params = tmp;
+
+#ifdef LOG_PARAMETERS
+    log_parameters(params);
+#endif
+
+    return params;
+}
+
+char* camera_get_custom_parameters(struct camera_device * device)
+{
+    ALOGV("%s", __FUNCTION__);
+    ALOGV("%s->%08X->%08X", __FUNCTION__, (uintptr_t)device, (uintptr_t)(((wrapper_camera_device_t*)device)->vendor));
+
+    if(!device)
+        return NULL;
+
+    char* params = VENDOR_CALL(device, get_custom_parameters);
 
 #ifdef LOG_PARAMETERS
     log_parameters(params);
@@ -600,8 +722,12 @@ int camera_device_open(const hw_module_t* module, const char* name,
         camera_ops->cancel_auto_focus = camera_cancel_auto_focus;
         camera_ops->take_picture = camera_take_picture;
         camera_ops->cancel_picture = camera_cancel_picture;
-        camera_ops->set_parameters = camera_set_parameters;
-        camera_ops->get_parameters = camera_get_parameters;
+        //camera_ops->set_parameters = camera_set_parameters;
+        //camera_ops->get_parameters = camera_get_parameters;
+        camera_ops->set_parameters = camera_set_custom_parameters;
+        camera_ops->get_parameters = camera_get_custom_parameters;
+        camera_ops->set_custom_parameters = camera_set_custom_parameters;
+        camera_ops->get_custom_parameters = camera_get_custom_parameters;
         camera_ops->put_parameters = camera_put_parameters;
         camera_ops->send_command = camera_send_command;
         camera_ops->release = camera_release;
@@ -639,4 +765,12 @@ int camera_get_camera_info(int camera_id, struct camera_info *info)
     if (check_vendor_module())
         return 0;
     return gVendorModule->get_camera_info(camera_id, info);
+}
+
+int camera_get_camera_info_extended(int camera_id, struct camera_info_extended *info)
+{
+    ALOGV("%s", __FUNCTION__);
+    if (check_vendor_module())
+        return 0;
+    return gVendorModule->get_camera_info_extended(camera_id, info);
 }
