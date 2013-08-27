@@ -74,6 +74,31 @@ PRODUCT_PACKAGES += \
     hostapd_cli \
     calibrator
 
+# Audio
+PRODUCT_PACKAGES += \
+    audio.a2dp.default \
+    libtinyalsa \
+    libaudioutils
+
+# Filesystem management tools
+PRODUCT_PACKAGES += \
+    make_ext4fs \
+    setup_fs
+
+
+# NFC packages
+PRODUCT_PACKAGES += \
+    libnfc \
+    libnfc_jni \
+    Nfc \
+    Tag \
+    com.android.nfc_extras
+
+# Other apps
+PRODUCT_PACKAGES += \
+    Torch \
+    com.android.future.usb.accessory
+
 # Video
 PRODUCT_PACKAGES += \
     libstagefrighthw
