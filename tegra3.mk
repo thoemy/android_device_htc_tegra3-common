@@ -39,7 +39,6 @@ PRODUCT_COPY_FILES += \
 
 # Prebuilt Alsa configs
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/asound.conf:system/etc/asound.conf \
     $(LOCAL_PATH)/prebuilt/usr/share/alsa/alsa.conf:system/usr/share/alsa/alsa.conf \
     $(LOCAL_PATH)/prebuilt/usr/share/alsa/cards/aliases.conf:system/usr/share/alsa/cards/aliases.conf \
     $(LOCAL_PATH)/prebuilt/usr/share/alsa/pcm/center_lfe.conf:system/usr/share/alsa/pcm/center_lfe.conf \
@@ -58,10 +57,23 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/prebuilt/usr/share/alsa/pcm/surround51.conf:system/usr/share/alsa/pcm/surround51.conf \
     $(LOCAL_PATH)/prebuilt/usr/share/alsa/pcm/surround71.conf:system/usr/share/alsa/pcm/surround71.conf
 
-# Prebuilt Audio/GPS/Camera/Wi-Fi configs
+# Prebuilt Audio configs
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/asound.conf:system/etc/asound.conf \
+    $(LOCAL_PATH)/configs/audio_effects.conf:system/etc/audio_effects.conf \
+    $(LOCAL_PATH)/configs/audio_policy.conf:system/etc/audio_policy.conf \
+    $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml \
+    $(LOCAL_PATH)/configs/media_profiles.xml:system/etc/media_profiles.xml
+
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/nvcamera.conf:system/etc/nvcamera.conf \
     $(LOCAL_PATH)/configs/enctune.conf:system/etc/enctune.conf
+
+# misc
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/model_frontal.xml:system/etc/model_frontal.xml \
+    $(LOCAL_PATH)/configs/nvram_4329.txt:system/etc/nvram_4329.txt \
+    $(LOCAL_PATH)/configs/nvram_4330.txt:system/etc/nvram_4330.txt
 
 # Input config files
 PRODUCT_COPY_FILES += \
