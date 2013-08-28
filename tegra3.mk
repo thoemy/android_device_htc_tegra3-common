@@ -53,6 +53,11 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/prebuilt/usr/share/alsa/pcm/surround51.conf:system/usr/share/alsa/pcm/surround51.conf \
     $(LOCAL_PATH)/prebuilt/usr/share/alsa/pcm/surround71.conf:system/usr/share/alsa/pcm/surround71.conf
 
+# Prebuilt Audio/GPS/Camera/Wi-Fi configs
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/nvcamera.conf:system/etc/nvcamera.conf \
+    $(LOCAL_PATH)/configs/enctune.conf:system/etc/enctune.conf
+
 # Common ramdisk files
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/ramdisk/init.tegra3-common.rc:root/init.tegra3-common.rc
