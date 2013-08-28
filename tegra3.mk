@@ -69,6 +69,12 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/nvcamera.conf:system/etc/nvcamera.conf \
     $(LOCAL_PATH)/configs/enctune.conf:system/etc/enctune.conf
 
+# misc
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/model_frontal.xml:system/etc/model_frontal.xml \
+    $(LOCAL_PATH)/configs/nvram_4329.txt:system/etc/nvram_4329.txt \
+    $(LOCAL_PATH)/configs/nvram_4330.txt:system/etc/nvram_4330.txt
+
 # Input config files
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/prebuilt/usr/idc/atmel-maxtouch.idc:system/usr/idc/atmel-maxtouch.idc \
