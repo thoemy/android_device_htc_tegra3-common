@@ -103,8 +103,7 @@ PRODUCT_PACKAGES += \
     pollyd
 
 PRODUCT_PACKAGES += \
-    hostapd_cli \
-    calibrator
+    hostapd_cli
 
 # Audio
 PRODUCT_PACKAGES += \
