@@ -12,3 +12,9 @@ on boot
     chown root system /sys/class/leds/button-backlight/button_brightness
     chmod 0664 /sys/class/leds/button-backlight/button_brightness
     restorecon /sys/class/leds/button-backlight/button_brightness
+
+# pollyd (respect & thanks to Adrian Ulrich <adrian@blinkenlights.ch> )
+service pollyd /system/bin/pollyd
+    class main
+    user root
+    group root
