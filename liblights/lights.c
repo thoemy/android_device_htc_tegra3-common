@@ -39,17 +39,16 @@ static struct light_state_t g_notification;
 static struct light_state_t g_battery;
 static struct light_state_t g_buttons;
 static int g_backlight = 255;
-static int g_isblinking =0;
+static int g_isblinking = 0;
 
-char const*const AMBER_LED_FILE = "/sys/class/leds/amber/brightness";
-char const*const GREEN_LED_FILE = "/sys/class/leds/green/brightness";
-
-char const*const BUTTON_FILE = "/sys/class/leds/button-backlight/brightness";
-char const*const BUTTON_CURRENTS_FILE = "/sys/class/leds/button-backlight/currents";
-
+char const*const AMBER_LED_FILE   = "/sys/class/leds/amber/brightness";
 char const*const AMBER_BLINK_FILE = "/sys/class/leds/amber/blink";
+char const*const GREEN_LED_FILE   = "/sys/class/leds/green/brightness";
 char const*const GREEN_BLINK_FILE = "/sys/class/leds/green/blink";
 
+char const*const BUTTON_FILE            = "/sys/class/leds/button-backlight/brightness";
+char const*const BUTTON_BRIGHTNESS_FILE = "/sys/class/leds/button-backlight/button_brightness";
+char const*const BUTTON_CURRENTS_FILE   = "/sys/class/leds/button-backlight/currents";
 char const*const BUTTON_SLOW_BLINK_FILE = "/sys/class/leds/button-backlight/slow_blink";
 
 char const*const LCD_BACKLIGHT_FILE = "/sys/class/backlight/tegra-pwm-bl/brightness";
@@ -234,16 +233,21 @@ static void set_light_buttons_blink_locked(struct light_device_t *dev,
 static int set_light_buttons_locked(struct light_device_t* dev,
                                     struct light_state_t const* state) {
     int err = 0;
-    int on = is_lit(state);
+    int on = !!is_lit(state);
+    int was_on = !!is_lit(&g_buttons);
+
     g_buttons = *state;
 
     // Stop blinking if button backlights get turned on
     if(on)
         set_light_buttons_blink_locked(dev, &g_notification);
 
-    // always use low brightness
-    err = write_int(BUTTON_CURRENTS_FILE, on ? 1 : 0);
-    err = write_int(BUTTON_FILE, on ? 1 : 0);
+    // Only enable/disable on a state change (XOR)
+    if(was_on ^ on) {
+        err = write_int(BUTTON_CURRENTS_FILE, on ? 1 : 0);
+        err = write_int(BUTTON_FILE, on ? 1 : 0);
+    }
+    err = write_int(BUTTON_BRIGHTNESS_FILE, state->color & 0xff);
 
     // Start blinking if buttons backlight turns off
     if(!on)
