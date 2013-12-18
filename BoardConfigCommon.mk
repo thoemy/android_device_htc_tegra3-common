@@ -20,8 +20,11 @@ BOARD_SKIP_ANDROID_DOC_BUILD := true
 # Audio
 BOARD_USES_GENERIC_AUDIO := false
 BOARD_USES_ALSA_AUDIO := false
+BOARD_USES_TINY_AUDIO := false
+#USE_PROPRIETARY_AUDIO_EXTENSIONS := true
 
 # Sense 4.5 / Sense 5 audio.primary blob support. See: include/hardware/audio.h
+BOARD_HAVE_PRE_KITKAT_AUDIO_BLOB := true
 COMMON_GLOBAL_CFLAGS += -DHTC_TEGRA_AUDIO
 # Uncomment if you want try the Sense 5 audio_policy
 # COMMON_GLOBAL_CFLAGS += -DMR1_AUDIO_BLOB
