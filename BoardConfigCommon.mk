@@ -67,6 +67,10 @@ ENABLE_WEBGL := true
 
 # EGL settings
 USE_OPENGL_RENDERER := true
+#BOARD_HAVE_PIXEL_FORMAT_INFO := true
+
+# No EGL_KHR_gl_colorspace
+BOARD_EGL_WORKAROUND_BUG_10194508 := true
 BOARD_EGL_CFG := device/htc/tegra3-common/configs/egl.cfg
 
 # BT
