@@ -160,6 +160,20 @@ static char * camera_fixup_getparams(int id, const char * settings)
     }
 #endif
 
+    // NV blob uses saturation-max, contrast-max and sharpness-max properties.
+    // Some QCOM related framework changes expect max-saturation, max-contrast
+    // and max-sharpness or the Camera app will crash.
+    const char* value;
+    if((value = params.get("saturation-max"))) {
+        params.set("max-saturation", value);
+    }
+    if((value = params.get("contrast-max"))) {
+        params.set("max-contrast", value);
+    }
+    if((value = params.get("sharpness-max"))) {
+        params.set("max-sharpness", value);
+    }
+
     android::String8 strParams = params.flatten();
     char *ret = strdup(strParams.string());
 
