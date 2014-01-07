@@ -138,39 +138,48 @@ const static char * picture_size_values = "320x240,480x480,640x368,640x480,800x6
 
 static char * camera_fixup_getparams(int id, const char * settings)
 {
+    const char * value;
+    int camera_mode = -1;
     android::CameraParameters params;
     params.unflatten(android::String8(settings));
 
     // fix params here
     params.set(android::CameraParameters::KEY_SUPPORTED_SCENE_MODES, scene_mode_values[id]);
 
-    // with 4.2.2 binary the last 2 resolutions end up cut off and the string ends 2592x1952,3 
+    // with 4.2.2 binary the last 2 resolutions end up cut off and the string ends 2592x1952,3
     // so if there's no x after the last comma then the string is borked so use the one we know works
     if(strchr(strrchr(params.get(android::CameraParameters::KEY_SUPPORTED_PICTURE_SIZES), ','), 'x') == NULL)
       params.set(android::CameraParameters::KEY_SUPPORTED_PICTURE_SIZES, picture_size_values);
-    
-#ifdef HARDWARE_HDR
-    // The camera apps expect the scene-mode to be hdr but the binary blob
+
+    // The Camera2 expects the scene-mode to be hdr but the binary blob
     // delivers capture-mode=hdr.
-    if(params.get("capture-mode")) {
-        const char* captureMode = params.get("capture-mode");
-        if(strcmp(captureMode, "hdr") == 0) {
+    if((value = params.get("capture-mode"))) {
+        if(strcmp(value, "hdr") == 0) {
+            ALOGI("capture-mode=hdr -> scene-mode=hdr, capture-mode=normal");
             params.set("scene-mode", "hdr");
+            params.set("capture-mode", "normal");
         }
     }
-#endif
+
+    // camera-mode -> cam-mode
+    if((camera_mode = params.getInt("cam-mode"))) {
+        ALOGI("cam-mode=%d -> camera-mode=%d", camera_mode, camera_mode == 0 ? 1 : 0);
+        params.set("camera-mode", camera_mode == 0 ? "1" : "0");
+    }
 
     // NV blob uses saturation-max, contrast-max and sharpness-max properties.
     // Some QCOM related framework changes expect max-saturation, max-contrast
     // and max-sharpness or the Camera app will crash.
-    const char* value;
     if((value = params.get("saturation-max"))) {
+        ALOGI("saturation-max=%s -> max-saturation=%s", value, value);
         params.set("max-saturation", value);
     }
     if((value = params.get("contrast-max"))) {
+        ALOGI("contrast-max=%s -> max-contrast=%s", value, value);
         params.set("max-contrast", value);
     }
     if((value = params.get("sharpness-max"))) {
+        ALOGI("sharpness-max=%s -> max-maxsharpness=%s", value, value);
         params.set("max-sharpness", value);
     }
 
@@ -185,94 +194,108 @@ char * camera_fixup_setparams(int id, const char * settings)
 {
     android::CameraParameters params;
     params.unflatten(android::String8(settings));
-
+    const char * value;
+    const char* scene_mode;
     bool is_video = false;
-    if(params.get("recording-hint") && strcmp(params.get("recording-hint"), "true") == 0) {
-        is_video = true;
+    bool zsl = false;
+    bool hdr = false;
+    int camera_mode = -1;
+
+    if((value = params.get("recording-hint"))) {
+        if(strcmp(value, "true") == 0)
+            is_video = true;
     }
 
-    int cam_mode = -1;
-    if(params.get("cam-mode")) 
-        cam_mode = atoi(params.get("cam-mode"));
-
-    // cam-mode 0 is what the HTC camera app uses for taking pictures. It
-    // enables more advanced functionality. Gallery2 will set cam-mode to 0 for
-    // normal pictures if needsHTCCamMode is true in the overlay. It may break
-    // other camera apps if we set it unconditionally without the app knowing.
-    // But I'll leave the code here anyway.
-#if false
-    if(!is_video) {
-        params.set("cam-mode", "0");
+    // Get ZSL value
+    if((value = params.get("zsl"))) {
+        if(strcmp(value, "on") == 0) {
+            ALOGI("ZSL enabled");
+            zsl = true;
+        }
     }
-#endif
+
+    // camera-mode -> cam-mode
+    if((camera_mode = params.getInt("camera-mode"))) {
+        ALOGI("camera-mode=%d -> cam-mode=%d",
+              camera_mode, camera_mode == 1 ? 0 : -1);
+        params.set("cam-mode", camera_mode == 1 ? "0" : "-1");
+    }
 
     // Default to continuous-picture if nothing is set. It's what HTC uses.
     if(!is_video && !params.get("focus-mode")) {
         params.set("focus-mode", "continuous-picture");
     }
 
-    // Don't mess around if cam mode is -1
-    if(cam_mode != -1) {
+    // Set some defaults, but don't mess around if cam-mode is -1
+    if(camera_mode != -1) {
         // Fix taking pictures with cam-mode=0 and cam-mode=1
-        params.set("nv-burst-picture-count", "1"); // set_custom_parameters only
+        if(!params.get("nv-burst-picture-count"))
+           params.set("nv-burst-picture-count", "1"); // set_custom_parameters only
 
-        // Set/reset parameters that are not set by the camera apps
-        params.set("nv-nsl-burst-picture-count", "0");
-        params.set("nv-nsl-num-buffers", "0");
-        params.set("nv-ev-bracket-capture", ""); // set_custom_parameters only
-
-        params.set("capture-mode", "normal");
-    }
-        
-    // fix params here
-    if(params.get("scene-mode")) {
-        const char* sceneMode = params.get(android::CameraParameters::KEY_SCENE_MODE);
-        if(strcmp(sceneMode, "auto") == 0) {
-#ifdef ENABLE_ZSL
-            // Parameters used by the HTC camera app for taking normal
-            // pictures. ZSL stands for Zero-Shutter-Lag and NSL for
-            // Negative-Shutter-Lag. It should enable us to take pictures
-            // faster but I couldn't find any improvements.
-            params.set("capture-mode", "zsl");
-            params.set("nv-nsl-num-buffers", "3");
-            params.set("nv-nsl-burst-picture-count", "1");
-            params.set("nv-burst-picture-count", "0"); // set_custom_parameters only
-#endif
-        } else if(strcmp(sceneMode, "hdr") == 0) {
-#ifndef ENABLE_HARDWARE_HDR
-            params.set(android::CameraParameters::KEY_SCENE_MODE, "backlight-hdr");
-#else
-            // The hardware HDR feature is enabled by setting the capture-mode
-            // to hdr and using bracked-capture with different exposures. The
-            // parameters below are what the HTC camera app uses. It works but
-            // is very slow. It can take 5-8 seconds to take a picutre
-            params.set(android::CameraParameters::KEY_SCENE_MODE, "auto");
-            params.set("capture-mode", "hdr");
-            params.set("focus-mode", "continuous-picture");
-            params.set("nv-nsl-num-buffers", "0");
+        // Set/reset parameters that are not set by the camera app
+        if(!params.get("nv-nsl-burst-picture-count"))
             params.set("nv-nsl-burst-picture-count", "0");
-            params.set("nv-burst-picture-count", "1"); // set_custom_parameters only
-            params.set("nv-ev-bracket-capture", "-2.0,0,2.0"); // set_custom_parameters only
-#endif
-        } else if(strcmp(sceneMode, "closeup") == 0)
-            params.set(android::CameraParameters::KEY_SCENE_MODE, "close-up");
-        else if(strcmp(sceneMode, "back-light") == 0)
-            params.set(android::CameraParameters::KEY_SCENE_MODE, "backlight");
+        if(!params.get("nv-nsl-num-buffers"))
+            params.set("nv-nsl-num-buffers", "0");
+        if(!params.get("nv-ev-bracket-capture"))
+            params.set("nv-ev-bracket-capture", ""); // set_custom_parameters only
+
+        if(!params.get("capture-mode"))
+            params.set("capture-mode", "normal");
     }
 
-    if (params.get("flash-mode"))
-    {
+    // Get scene-mode, default to auto if none is set
+    if(!(scene_mode = params.get(android::CameraParameters::KEY_SCENE_MODE))) {
+        scene_mode = "auto";
+    }
+
+    // HDR mode
+    if(strcmp(scene_mode, "hdr") == 0) {
+        hdr = true;
+        ALOGI("Setting HDR parameters");
+        // The hardware HDR feature is enabled by setting the capture-mode
+        // to hdr and using bracked-capture with different exposures. The
+        // parameters below are what the HTC camera app uses. It works but
+        // is very slow. It can take 5-8 seconds to take a picutre
+        params.set(android::CameraParameters::KEY_SCENE_MODE, "auto");
+        params.set("capture-mode", "hdr");
+        params.set("focus-mode", "continuous-picture");
+        params.set("nv-nsl-num-buffers", "0");
+        params.set("nv-nsl-burst-picture-count", "0");
+        params.set("nv-burst-picture-count", "1"); // set_custom_parameters only
+        params.set("nv-ev-bracket-capture", "-2.0,0,2.0"); // set_custom_parameters only
+
+    } else if(strcmp(scene_mode, "closeup") == 0) {
+        // Fix closeup -> close-up
+        params.set(android::CameraParameters::KEY_SCENE_MODE, "close-up");
+
+    } else if(strcmp(scene_mode, "back-light") == 0) {
+        // Fix back-light -> backlight
+        params.set(android::CameraParameters::KEY_SCENE_MODE, "backlight");
+    }
+
+    // Set ZSL parameters for all scene-modes except hdr
+    if(zsl && !hdr) {
+        ALOGI("Setting ZSL parameters");
+        // Parameters used by the HTC camera app for taking normal
+        // pictures. ZSL stands for Zero-Shutter-Lag and NSL for
+        // Negative-Shutter-Lag. It should enable us to take pictures
+        // faster but I couldn't find any improvements.
+        params.set("capture-mode", "zsl");
+        params.set("nv-nsl-num-buffers", "3");
+        params.set("nv-nsl-burst-picture-count", "1");
+        params.set("nv-burst-picture-count", "0"); // set_custom_parameters only
+    }
+
+    // Toggle flashlight based on flash-mode
+    if (params.get("flash-mode")) {
         const char* flashMode = params.get(android::CameraParameters::KEY_FLASH_MODE);
-        if (strcmp(flashMode, "torch") == 0)
-        {
+        if (strcmp(flashMode, "torch") == 0) {
               system("echo 1 > /sys/class/leds/flashlight/brightness");
-        } else
-        if (strcmp(flashMode, "off") == 0)
-        {
+        } else if (strcmp(flashMode, "off") == 0) {
               system("echo 0 > /sys/class/leds/flashlight/brightness");
         }
     }
-
 
     android::String8 strParams = params.flatten();
     char *ret = strdup(strParams.string());
@@ -696,7 +719,7 @@ int camera_device_open(const hw_module_t* module, const char* name,
         memset(camera_device, 0, sizeof(*camera_device));
         camera_device->id = cameraid;
 
-        if(rv = gVendorModule->common.methods->open((const hw_module_t*)gVendorModule, name, (hw_device_t**)&(camera_device->vendor)))
+        if((rv = gVendorModule->common.methods->open((const hw_module_t*)gVendorModule, name, (hw_device_t**)&(camera_device->vendor))))
         {
             ALOGE("vendor camera open fail");
             goto fail;
