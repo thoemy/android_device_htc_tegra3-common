@@ -49,12 +49,6 @@ on boot
     chmod 0664 /sys/class/leds/button-backlight/button_brightness
     restorecon /sys/class/leds/button-backlight/button_brightness
 
-# pollyd (respect & thanks to Adrian Ulrich <adrian@blinkenlights.ch> )
-service pollyd /system/bin/pollyd
-    class late_start
-    user root
-    group root
-
 # HTC RIL daemon. Name changed so it doesn't clash with ril-daemon defined in init.rc
 service htc-ril-daemon /system/bin/rild
     class core
