@@ -15,6 +15,6 @@ on boot
 
 # pollyd (respect & thanks to Adrian Ulrich <adrian@blinkenlights.ch> )
 service pollyd /system/bin/pollyd
-    class main
+    class late_start
     user root
     group root
