@@ -1,3 +1,7 @@
+on init:
+    # We use our own ril-daemon service definition, see htc-ril-daemon
+    stop ril-daemon
+
 on early-init
     # Adaptive backlight (surfaceflinger Uid: system, Gid: graphics)
     chown system system /sys/devices/tegradc.0/smartdimmer/enable
@@ -50,3 +54,20 @@ service pollyd /system/bin/pollyd
     class late_start
     user root
     group root
+
+# HTC RIL daemon. Name changed so it doesn't clash with ril-daemon defined in init.rc
+service htc-ril-daemon /system/bin/rild
+    class core
+    socket rild stream 660 root radio
+    socket rild-debug stream 660 radio system
+    socket rild-audio-gsm stream 660 radio system
+    socket rild-htc-coredump stream 660 radio system
+    socket rild-agps stream 660 radio system
+    socket rild-audio stream 660 radio audio
+## +++ for ganlite ril
+    socket ganat stream 660 radio ganlite_access
+    socket ganpsat stream 660 radio ganlite_access
+    socket kipc stream 660 radio ganlite_access
+## --- for ganlite ril
+    user root
+    group radio cache inet misc audio log
