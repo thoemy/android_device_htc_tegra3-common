@@ -1,4 +1,4 @@
-on init:
+on init
     # We use our own ril-daemon service definition, see htc-ril-daemon
     stop ril-daemon
 
