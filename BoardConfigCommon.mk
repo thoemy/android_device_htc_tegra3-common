@@ -82,7 +82,7 @@ TARGET_SPECIFIC_HEADER_PATH := device/htc/tegra3-common/include
 BOARD_HARDWARE_CLASS := device/htc/tegra3-common/cmhw/
 
 # RIL (fix network scan issue)
-BOARD_USE_NEW_LIBRIL_HTC := true
+BOARD_RIL_CLASS := ../../../device/htc/tegra3-common/ril/
 
 # Skip droiddoc build to save build time
 BOARD_SKIP_ANDROID_DOC_BUILD := true
