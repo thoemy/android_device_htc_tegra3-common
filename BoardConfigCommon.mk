@@ -92,17 +92,17 @@ BOARD_SEPOLICY_DIRS := \
     device/htc/tegra3-common/sepolicy
 
 BOARD_SEPOLICY_UNION := \
-    file_contexts \
-    genfs_contexts \
-    app.te \
-    bdaddwriter.te \
-    device.te \
-    drmserver.te \
-    init_shell.te \
-    file.te \
-    rild.te \
-    sensors_config.te \
-    shell.te \
-    surfaceflinger.te \
-    system.te \
-    zygote.te
+        file_contexts \
+        genfs_contexts \
+        app.te \
+        btmacreader.te \
+        device.te \
+        drmserver.te \
+        init_shell.te \
+        file.te \
+        rild.te \
+        sensors_config.te \
+        shell.te \
+        surfaceflinger.te \
+        system.te \
+        zygote.te
