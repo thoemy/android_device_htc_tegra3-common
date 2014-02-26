@@ -15,7 +15,6 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# PhilZ: Fix compile error conflicts
 ifneq ($(filter endeavoru enrc2b,$(TARGET_DEVICE)),)
     include $(call first-makefiles-under,$(LOCAL_PATH))
 endif
