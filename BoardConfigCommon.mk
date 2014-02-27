@@ -64,6 +64,9 @@ BOARD_EGL_CFG := device/htc/tegra3-common/configs/egl.cfg
 # No EGL_KHR_gl_colorspace
 BOARD_EGL_WORKAROUND_BUG_10194508 := true
 
+# No support for the sync framework
+TARGET_RUNNING_WITHOUT_SYNC_FRAMEWORK := true
+
 # BT
 BOARD_HAVE_BLUETOOTH := true
 
