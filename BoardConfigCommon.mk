@@ -102,6 +102,7 @@ BOARD_SEPOLICY_UNION += \
         device.te \
         domain.te \
         drmserver.te \
+	init.te \
         init_shell.te \
         file.te \
         gpsd.te \
@@ -114,4 +115,5 @@ BOARD_SEPOLICY_UNION += \
         system_app.te \
         system_server.te \
         ueventd.te \
+	uim_sysfs.te \
         vold.te

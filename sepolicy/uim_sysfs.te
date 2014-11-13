@@ -1,0 +1,9 @@
+type uim_sysfs, domain;
+type uim_sysfs_exec, exec_type, file_type;
+
+init_daemon_domain(uim_sysfs)
+
+
+allow uim_sysfs self:capability {
+    sys_module
+};
